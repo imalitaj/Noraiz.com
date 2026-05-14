@@ -1,7 +1,7 @@
 // Vercel Serverless Function — TALIXA Groq Proxy
-// API key stored in Vercel dashboard env vars, never in code.
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', 'https://noraiz.com');
+// API key in Vercel env vars (GROQ_KEY), never exposed to browser.
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -18,8 +18,8 @@ Builds: SaaS platforms, ERP systems, AI-integrated apps, REST APIs, real-time sy
 5+ years experience. Company: Metavystic Pvt Ltd. Contact: malitajofficial@gmail.com. Open to hire.
 Rules:
 - Answer in 2-4 sentences max. Be direct and confident.
-- Tech problem/error → brief diagnosis, say "Ali can fix this properly."
-- Hiring/project question → confirm Ali can do it, 1 relevant detail, say "Drop Ali a message."
+- Tech problem/error: brief diagnosis, say "Ali can fix this properly."
+- Hiring/project question: confirm Ali can do it, 1 relevant detail, say "Drop Ali a message."
 - End every reply with a short CTA pointing to Ali.
 - Tone: sharp, professional, slightly futuristic. No fluff.`;
 
@@ -28,7 +28,7 @@ Rules:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_KEY}`,
+        'Authorization': 'Bearer ' + process.env.GROQ_KEY,
       },
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant',
@@ -41,11 +41,11 @@ Rules:
       }),
     });
 
-    if (!groq.ok) throw new Error('Groq error');
+    if (!groq.ok) throw new Error('Groq error ' + groq.status);
     const data  = await groq.json();
     const reply = data.choices?.[0]?.message?.content ?? 'Reach Ali at malitajofficial@gmail.com';
     return res.json({ reply });
-  } catch {
-    return res.status(502).json({ reply: 'AI offline right now. Reach Ali at malitajofficial@gmail.com' });
+  } catch (e) {
+    return res.status(502).json({ reply: 'AI offline. Reach Ali at malitajofficial@gmail.com' });
   }
-}
+};

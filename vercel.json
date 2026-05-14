@@ -1,7 +1,11 @@
 {
   "version": 2,
-  "outputDirectory": ".",
-  "rewrites": [
-    { "source": "/api/groq", "destination": "/api/groq.js" }
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "api/groq.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/groq", "dest": "/api/groq.js" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
