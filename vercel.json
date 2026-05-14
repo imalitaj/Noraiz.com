@@ -1,8 +1,8 @@
 {
   "version": 2,
   "functions": {
-    "api/groq.js":    { "runtime": "nodejs18.x" },
-    "api/contact.js": { "runtime": "nodejs18.x" }
+    "api/groq.js":    {},
+    "api/contact.js": {}
   },
   "routes": [
     { "src": "/api/groq",    "dest": "/api/groq.js" },
