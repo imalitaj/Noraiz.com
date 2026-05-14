@@ -1386,7 +1386,7 @@ a.ci-v:hover{color:var(--amb)}
   <div id="icons">
     <div class="ico" onclick="openWin('readme')"><span class="ico-img">📄</span><span class="ico-lbl">README.txt</span></div>
     <div class="ico" onclick="openWin('about')"><span class="ico-img">👤</span><span class="ico-lbl">about.md</span></div>
-    <div class="ico" onclick="openWin('proj')"><span class="ico-img">📁</span><span class="ico-lbl">projects/</span></div>
+    <div class="ico" onclick="openWin('proj')"><span class="ico-img">📁</span><span class="ico-lbl">projects.db</span></div>
     <div class="ico" onclick="openWin('skills')"><span class="ico-img">⚙️</span><span class="ico-lbl">skills.json</span></div>
     <div class="ico" onclick="openWin('contact')"><span class="ico-img">✉️</span><span class="ico-lbl">contact.msg</span></div>
     <div class="ico" onclick="openWin('term')"><span class="ico-img">🖥️</span><span class="ico-lbl">terminal.exe</span></div>
@@ -1563,7 +1563,7 @@ a.ci-v:hover{color:var(--amb)}
 <div id="ctx">
   <div class="ctx-item" onclick="openWin('readme')">📄 README.txt</div>
   <div class="ctx-item" onclick="openWin('about')">👤 about.md</div>
-  <div class="ctx-item" onclick="openWin('proj')">📁 projects/</div>
+  <div class="ctx-item" onclick="openWin('proj')">📁 projects.db</div>
   <div class="ctx-item" onclick="openWin('skills')">⚙️ skills.json</div>
   <div class="ctx-sep"></div>
   <div class="ctx-item" onclick="openWin('contact')">✉️ contact.msg</div>
@@ -1981,7 +1981,7 @@ const openWins={};
 const WIN_CFG={
   readme: {title:'README.txt',    w:600, h:460, x:'c', y:'c',     cls:''},
   about:  {title:'about.md',      w:870, h:590, x:110, y:45,      cls:''},
-  proj:   {title:'projects/',     w:910, h:550, x:150, y:55,      cls:''},
+  proj:   {title:'projects.db',     w:910, h:550, x:150, y:55,      cls:''},
   skills: {title:'skills.json',   w:700, h:600, x:85,  y:55,      cls:''},
   contact:{title:'contact.msg',   w:760, h:520, x:160, y:65,      cls:''},
   term:   {title:'terminal.exe',  w:750, h:490, x:95,  y:85,      cls:''},
@@ -2049,7 +2049,7 @@ window.openProj=function(id){
         <div class="wc wcx" title="Maximize">⤢</div>
         <div class="wc-hint">close · min · max</div>
       </div>
-      <div class="wtitle">projects/${p.t.toLowerCase().replace(/\s+/g,'-')}</div>
+      <div class="wtitle">projects.db — ${p.t}</div>
     </div>
     <div class="wbody"><div class="wc-pd">
       <div class="pd-head">
@@ -3261,7 +3261,7 @@ function runCmd(cmd,out){
       appendTerm(out,'<span class="t-spc"></span>');break;
     case 'ls':
       appendTerm(out,'<span class="t-spc"></span>');
-      appendTerm(out,'<span class="t-grn">README.txt</span>  <span class="t-cy">about.md</span>  <span class="t-grn">projects/</span>  <span class="t-cy">skills.json</span>  <span class="t-grn">contact.msg</span>  <span class="t-cy">terminal.exe</span>  <span style="color:var(--cy)">neural-ai.exe</span>');
+      appendTerm(out,'<span class="t-grn">README.txt</span>  <span class="t-cy">about.md</span>  <span class="t-grn">projects.db</span>  <span class="t-cy">skills.json</span>  <span class="t-grn">contact.msg</span>  <span class="t-cy">terminal.exe</span>  <span style="color:var(--cy)">neural-ai.exe</span>');
       appendTerm(out,'<span class="t-spc"></span>');break;
     case 'skills':
       appendTerm(out,'<span class="t-spc"></span>');
@@ -3282,7 +3282,7 @@ function runCmd(cmd,out){
       appendTerm(out,'  <span class="t-cy">Based   </span> Pakistan · UTC+5');
       appendTerm(out,'<span class="t-spc"></span>');break;
     case 'open':{
-      const fm={readme:'readme','readme.txt':'readme',about:'about','about.md':'about',projects:'proj','projects/':'proj',skills:'skills','skills.json':'skills',contact:'contact','contact.msg':'contact',ai:'ai','neural_ai':'ai','neural_ai.exe':'ai'};
+      const fm={readme:'readme','readme.txt':'readme',about:'about','about.md':'about',projects:'proj','projects.db':'proj',skills:'skills','skills.json':'skills',contact:'contact','contact.msg':'contact',ai:'ai','neural_ai':'ai','neural_ai.exe':'ai'};
       const t=fm[args.toLowerCase().replace(/\s/g,'')]||fm[args.toLowerCase().split('.')[0]];
       if(t){appendTerm(out,`<span class="t-grn">Opening ${escH(args)}…</span>`);setTimeout(()=>openWin(t),200);}
       else{appendTerm(out,`<span class="t-err">open: not found '${escH(args)}'</span>`);}
