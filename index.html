@@ -3718,17 +3718,31 @@ document.addEventListener('keydown',e=>{
 /* ── FLOATING AI BOT ─────────────────────────────────────── */
 (function(){
   const PROACTIVE=[
-    `Hey 👋 I'm TALIXA — trained on Ali Taj's full profile. Ask me anything!`,
-    `Ali has shipped 60+ projects across SaaS, cloud & real-time systems. Want to know more?`,
-    `Ali builds AI-augmented systems — Semantic Kernel, Azure OpenAI, RAG, n8n agents. Ask me how.`,
-    `Open to hire right now. Drop Ali a message — he responds in 24h.`,
-    `Ask me about DronesMatrix — Ali's flagship drone survey SaaS, live in production.`,
+    `Hey 👋 I'm TALIXA AI — ask me anything about Ali Taj or his work!`,
+    `Ali has shipped 60+ projects — SaaS products, real-time systems, and custom web apps. Ask me more.`,
+    `Ali builds systems that think — chatbots, automation workflows, custom AI tools. Ask me what fits your needs.`,
+    `Open to hire right now. Drop Ali a message — he gets back within 24h.`,
+    `Ask me about DronesMatrix — Ali's live drone survey platform built for field operations.`,
   ];
   let msgIdx=0, bubbleOpen=false, floatTyping=false;
+  let _cycleTimer=null;
   const bubble=document.getElementById('ai-float-bubble');
   const textEl=document.getElementById('ai-float-text');
   const badge=document.getElementById('ai-float-badge');
   const orb=document.getElementById('ai-float-orb');
+
+  // CHAR_DELAY: ms per character. DWELL: ms to show message before cycling to next.
+  const CHAR_DELAY=30, DWELL=5000;
+
+  function scheduleNextCycle(){
+    if(_cycleTimer)clearTimeout(_cycleTimer);
+    _cycleTimer=setTimeout(()=>{
+      if(bubbleOpen&&!floatTyping){
+        msgIdx=(msgIdx+1)%PROACTIVE.length;
+        typeFloatMsg(PROACTIVE[msgIdx]);
+      }
+    },DWELL);
+  }
 
   function typeFloatMsg(msg){
     if(floatTyping)return;floatTyping=true;
@@ -3740,8 +3754,11 @@ document.addEventListener('keydown',e=>{
       if(i<msg.length){
         textEl.insertBefore(document.createTextNode(msg[i]),cursor);
         i++;
-      }else{cursor.remove();floatTyping=false;clearInterval(t);}
-    },22);
+      }else{
+        cursor.remove();floatTyping=false;clearInterval(t);
+        scheduleNextCycle(); // schedule next message AFTER typing completes + DWELL ms
+      }
+    },CHAR_DELAY);
   }
 
   function showBubble(idx){
@@ -3814,6 +3831,7 @@ document.addEventListener('keydown',e=>{
   };
   window.closeFloatBubble=function(){
     bubbleOpen=false;bubble.style.display='none';
+    if(_cycleTimer){clearTimeout(_cycleTimer);_cycleTimer=null;}
   };
   window.openFromFloat=function(){
     closeFloatBubble();
@@ -3825,13 +3843,7 @@ document.addEventListener('keydown',e=>{
     if(!bubbleOpen)showBubble(0);
   },3500);
 
-  // Cycle proactive messages every 18s if bubble visible
-  setInterval(()=>{
-    if(bubbleOpen&&!floatTyping){
-      msgIdx=(msgIdx+1)%PROACTIVE.length;
-      typeFloatMsg(PROACTIVE[msgIdx]);
-    }
-  },18000);
+  // Cycling is now driven by scheduleNextCycle() called after each typeFloatMsg completes.
 
   // Add hover tracking
   addHover(orb);
