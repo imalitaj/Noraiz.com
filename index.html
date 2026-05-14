@@ -12,6 +12,9 @@
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://noraiz.com"/>
 
+<!-- Preload critical above-fold image -->
+<link rel="preload" href="ali-bot.jpg.png" as="image"/>
+
 <!-- Favicon — static fallback, overridden by animated canvas favicon in JS -->
 <link rel="icon" id="favicon" type="image/png" href="ali-bot.jpg.png"/>
 <meta name="theme-color" content="#04040f"/>
@@ -317,6 +320,13 @@ body.hov #cur2{width:20px;height:20px;border-color:rgba(0,229,255,.7)}
 /* ── WINDOWS LAYER ──────────────────────────────────────── */
 #wins{position:fixed;inset:0;z-index:3500;pointer-events:none}
 
+/* ── TOUCH — eliminate 300ms tap delay on all interactive elements ── */
+.ico,.wc,.ai-sug,.ai-send-btn,.send-btn,.ctx-item,.tb-app,
+#ai-float-orb,#ai-float-cta,#ai-float-close,.wcc,.wcm,.wcx,
+.soc,.pj-card,.sk-node,.skill-seg{
+  touch-action:manipulation;
+}
+
 /* ── WINDOW ─────────────────────────────────────────────── */
 .win{
   position:absolute;pointer-events:all;min-width:380px;min-height:280px;
@@ -326,6 +336,7 @@ body.hov #cur2{width:20px;height:20px;border-color:rgba(0,229,255,.7)}
   box-shadow:0 30px 70px rgba(0,0,0,.88),0 0 0 1px rgba(255,255,255,.025);
   display:flex;flex-direction:column;transition:box-shadow .2s;
   transform-origin:center center;overflow:hidden;
+  will-change:transform,opacity;
 }
 .win::before{content:'';position:absolute;top:44px;left:0;right:0;bottom:0;border-radius:0 0 16px 16px;background:var(--scan);pointer-events:none;z-index:0;opacity:.5}
 .win.active{
@@ -907,7 +918,7 @@ a.ci-v:hover{color:var(--amb)}
   transition:transform .2s,box-shadow .2s;
 }
 #ai-float-orb:hover{transform:scale(1.12);box-shadow:0 0 40px rgba(0,229,255,.5),inset 0 0 24px rgba(0,229,255,.2)}
-#ai-float-orb{cursor:grab}
+#ai-float-orb{cursor:grab;will-change:transform}
 #ai-float-orb.dragging{cursor:grabbing}
 #ai-float.dragging-float{transition:none}
 @keyframes float-pulse{
@@ -1203,6 +1214,35 @@ a.ci-v:hover{color:var(--amb)}
   #welcome{white-space:normal;text-align:center;width:auto;max-width:80vw}
   .hint-desktop{display:none}
   .hint-mobile{display:inline!important}
+
+  /* Windows: fit mobile screen — override min-width, remove heavy shadows */
+  .win{
+    min-width:0!important;
+    max-width:calc(100vw - 16px)!important;
+    max-height:calc(100vh - 130px)!important;
+    box-shadow:0 8px 32px rgba(0,0,0,.75)!important;
+  }
+  .win.active{box-shadow:0 8px 32px rgba(0,0,0,.8),0 0 0 1px rgba(245,166,35,.2)!important}
+
+  /* Strip backdrop-filter on perf-heavy elements — GPU relief */
+  #taskbar,#icons,.ctx-menu,#sys-menu,.afb-label,#ai-float-bubble{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+  /* Simplify HUD — no blur on mobile */
+  #hud-br,#hud-tl{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+
+  /* Faster open/close animations on mobile */
+  .win{transition:none}
+}
+
+/* ── Respect reduced-motion preference ──────── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
 }
 
 /* ── 390px: Small phones ────────────────────── */
@@ -1335,7 +1375,7 @@ a.ci-v:hover{color:var(--amb)}
     <div class="ico" onclick="openWin('skills')"><span class="ico-img">⚙️</span><span class="ico-lbl">skills.json</span></div>
     <div class="ico" onclick="openWin('contact')"><span class="ico-img">✉️</span><span class="ico-lbl">contact.msg</span></div>
     <div class="ico" onclick="openWin('term')"><span class="ico-img">🖥️</span><span class="ico-lbl">terminal.exe</span></div>
-    <div class="ico ai-ico" onclick="openWin('ai')"><span class="ico-img ico-face-wrap"><img src="ali-bot.jpg.png" class="ico-face-img" alt="Ali"/></span><span class="ico-lbl">TAJ AI</span></div>
+    <div class="ico ai-ico" onclick="openWin('ai')"><span class="ico-img ico-face-wrap"><img src="ali-bot.jpg.png" class="ico-face-img" alt="Ali" loading="lazy"/></span><span class="ico-lbl">TAJ AI</span></div>
   </div>
 
   <div id="dock-fade"></div>
@@ -1356,7 +1396,7 @@ a.ci-v:hover{color:var(--amb)}
   <div class="sm-inner">
     <!-- Header -->
     <div class="sm-head">
-      <div class="sm-av"><img src="ali-bot.jpg.png" alt="Ali Taj"/></div>
+      <div class="sm-av"><img src="ali-bot.jpg.png" alt="Ali Taj" loading="lazy"/></div>
       <div class="sm-id">
         <div class="sm-nm">Ali Taj</div>
         <div class="sm-rl">LEAD DEV · AI ENGINEER</div>
@@ -2055,7 +2095,7 @@ window.openWin=function(id){
   const oh=Math.min(cfg.h,innerHeight-74);
   lx=Math.min(Math.max(0,lx),innerWidth-ow-10);
   ly=Math.min(Math.max(0,ly),innerHeight-oh-60);
-  el.style.cssText=`left:${lx}px;top:${ly}px;width:${cfg.w}px;height:${cfg.h}px;z-index:${++zTop}`;
+  el.style.cssText=`left:${lx}px;top:${ly}px;width:${ow}px;height:${oh}px;z-index:${++zTop}`;
 
   const isAI=id==='ai';
   el.innerHTML=`
@@ -2081,8 +2121,9 @@ window.openWin=function(id){
   el.querySelector('.wcm').addEventListener('click', (e)=>{e.stopPropagation();minimizeWin(id);});
   el.querySelector('.wcx').addEventListener('click', (e)=>{e.stopPropagation();maximizeWin(id);});
 
-  // Digital materialize effect — spring physics
-  animate(el,{scale:[.85,1],opacity:[0,1],translateY:[18,0],duration:540,ease:spring({stiffness:90,damping:12})});
+  // Digital materialize effect — instant on mobile, spring on desktop
+  const isMob=window.innerWidth<=768;
+  animate(el,{scale:[.85,1],opacity:[0,1],translateY:[18,0],duration:isMob?180:540,ease:isMob?'outQuad':spring({stiffness:90,damping:12})});
 
   el.addEventListener('mousedown',()=>focusWin(id));
   el.querySelector('.wbar').addEventListener('mousedown',startDrag.bind(null,id));
@@ -2097,7 +2138,8 @@ window.openWin=function(id){
 
 window.closeWin=function(id){
   const el=openWins[id];if(!el)return;
-  animate(el,{scale:.86,opacity:0,translateY:12,duration:260,ease:'inQuad',onComplete:()=>{
+  const isMob=window.innerWidth<=768;
+  animate(el,{scale:.86,opacity:0,translateY:12,duration:isMob?100:260,ease:'inQuad',onComplete:()=>{
     el.remove();delete openWins[id];removeTbApp(id);
   }});
 };
@@ -2342,7 +2384,7 @@ function aiContent(){
       <div class="ai-nh-top">
         <div class="ai-orb">
           <div class="ai-orb-ring"></div>
-          <img src="ali-bot.jpg.png" class="ai-orb-face" alt="Ali"/>
+          <img src="ali-bot.jpg.png" class="ai-orb-face" alt="Ali" loading="lazy"/>
         </div>
         <div class="ai-id">
           <div class="ai-id-name">TALIXA</div>
@@ -2355,7 +2397,7 @@ function aiContent(){
     </div>
     <div class="ai-msgs" id="ai-msgs">
       <div class="ai-msg bot">
-        <div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali"/></div>
+        <div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali" loading="lazy"/></div>
         <div class="ai-bubble">Hello. I'm TALIXA — trained on Ali Taj's professional profile. Ask me anything about his skills, projects, experience, or how to hire him.</div>
       </div>
     </div>
@@ -3806,8 +3848,13 @@ document.addEventListener('keydown',e=>{
           duration:600,ease:'outQuad'
         });
       } else {
-        // Pure click — position untouched, just toggle
-        toggleFloatBubble();
+        // Pure click — on mobile open full window directly (no bubble step)
+        if(window.innerWidth<=768){
+          closeFloatBubble();
+          if(typeof openWin==='function') openWin('ai');
+        } else {
+          toggleFloatBubble();
+        }
       }
     }
 
@@ -3862,6 +3909,8 @@ document.querySelectorAll('.ico,.ctx-item,.tb-app,.soc,.pj-card,.ai-sug,.ai-send
 
 /* ── ANIMATED FAVICON — hexagonal taj-ai face with pulsing rings ── */
 (function(){
+  // Skip on mobile — favicon invisible anyway, saves CPU/battery
+  if(window.innerWidth<=768)return;
   const SZ=64;
   const cvs=document.createElement('canvas');
   cvs.width=cvs.height=SZ;
