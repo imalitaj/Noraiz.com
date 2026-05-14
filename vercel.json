@@ -1,4 +1,6 @@
 {
+  "version": 2,
+  "outputDirectory": ".",
   "rewrites": [
     { "source": "/api/groq", "destination": "/api/groq.js" }
   ]
