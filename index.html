@@ -60,9 +60,18 @@
 }
 </script>
 
-<link rel="preconnect" href="https://api.fontshare.com"/>
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=cabinet-grotesk@400,500,700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<!-- Preconnect to all external origins — eliminates connection latency -->
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net"/>
+<link rel="dns-prefetch" href="https://api.groq.com"/>
+
+<!-- Fonts: async load via print trick — non-blocking, no FCP impact -->
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=cabinet-grotesk@400,500,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
+<noscript><link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=cabinet-grotesk@400,500,700&display=swap" rel="stylesheet"/></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"/></noscript>
 <style>
 :root{
   --bg:#04040f; --bg2:#07071a; --bg3:#0b0b22;
@@ -73,9 +82,9 @@
   --wh:#e8f0ff;  --mu:#3a4666; --mu2:#6878a0;
   --bdr:rgba(232,240,255,.07); --bdr2:rgba(245,166,35,.28);
   --bdrc:rgba(0,229,255,.22);
-  --fm:'Share Tech Mono',monospace;
-  --fd:'Clash Display',sans-serif;
-  --fb:'Cabinet Grotesk',sans-serif;
+  --fm:'Share Tech Mono','Courier New',monospace;
+  --fd:'Clash Display','Inter',system-ui,sans-serif;
+  --fb:'Cabinet Grotesk','Inter',system-ui,sans-serif;
   --scan:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -156,16 +165,17 @@ body.hov #cur2{width:20px;height:20px;border-color:rgba(0,229,255,.7)}
   100%{transform:translate(-50%,-50%) scale(1);opacity:0}
 }
 .desk-scan{
-  position:absolute;left:0;right:0;height:1px;
+  position:absolute;left:0;right:0;height:1px;top:0;
   background:linear-gradient(90deg,transparent 0%,rgba(0,229,255,.35) 30%,rgba(245,166,35,.5) 50%,rgba(0,229,255,.35) 70%,transparent 100%);
   box-shadow:0 0 12px rgba(0,229,255,.3);
   pointer-events:none;animation:desk-sweep 8s linear infinite;z-index:3;
+  will-change:transform,opacity;
 }
 @keyframes desk-sweep{
-  0%  {top:-2px;opacity:0}
+  0%  {transform:translateY(0);opacity:0}
   5%  {opacity:1}
   95% {opacity:.6}
-  100%{top:100%;opacity:0}
+  100%{transform:translateY(100vh);opacity:0}
 }
 
 /* ── WINDOW LOADER ──────────────────────────────────────── */
@@ -183,8 +193,8 @@ body.hov #cur2{width:20px;height:20px;border-color:rgba(0,229,255,.7)}
   animation:win-boot-line .55s ease forwards;
 }
 @keyframes win-boot-line{
-  0%  {top:0;opacity:1}
-  100%{top:100%;opacity:.2}
+  0%  {transform:translateY(0);opacity:1}
+  100%{transform:translateY(50vh);opacity:.2}
 }
 @keyframes win-boot-fade{
   0%  {opacity:1}
@@ -1232,6 +1242,11 @@ a.ci-v:hover{color:var(--amb)}
   /* Simplify HUD — no blur on mobile */
   #hud-br,#hud-tl{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 
+  /* Kill ambient effects on mobile — GPU/CPU drain */
+  .amb-orb{display:none!important}
+  .desk-scan{display:none!important}
+  #desk-grid{animation:none!important}
+
   /* Faster open/close animations on mobile */
   .win{transition:none}
 }
@@ -1530,7 +1545,7 @@ a.ci-v:hover{color:var(--amb)}
   <div id="ai-float-orb">
     <div id="ai-float-ring"></div>
     <div id="ai-float-ring2"></div>
-    <img src="ali-bot.jpg.png" id="ai-float-face" alt="Ali"/>
+    <img src="ali-bot.jpg.png" id="ai-float-face" alt="Ali" width="58" height="58" fetchpriority="high"/>
     <div id="ai-float-badge">1</div>
     <div class="orb-tip">
       <div class="ico-tip-scan"></div>
