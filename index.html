@@ -553,6 +553,11 @@ a.ci-v:hover{color:var(--amb)}
 .ai-msg.user .ai-bubble{background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.2);color:var(--wh)}
 .ai-cursor-blink{display:inline-block;width:2px;height:.9em;background:var(--cy);margin-left:2px;vertical-align:text-bottom;animation:blink .7s step-end infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+/* Secret source indicator — only visible on close inspection */
+.ai-src-dot{width:5px;height:5px;border-radius:50%;position:absolute;bottom:6px;right:8px;opacity:.55;flex-shrink:0}
+.ai-src-dot.groq{background:#00ff88;animation:gp 1.4s ease-in-out infinite}
+.ai-src-dot.offline{background:#f5a623;opacity:.4}
+.ai-msg.bot .ai-bubble{position:relative}
 
 /* Thinking indicator */
 .ai-thinking{display:flex;gap:5px;align-items:center;padding:12px 16px}
@@ -3340,16 +3345,29 @@ window.aiSubmit=function(){
     body:JSON.stringify({message:q})
   })
   .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
-  .then(data=>{ _tlInc();updateBudgetDisplay(); return data; })
+  .then(data=>{ _tlInc();updateBudgetDisplay(); return {...data,_src:'groq'}; })
   .catch(()=>{
     const ql=q.toLowerCase();
     const hit=AI_KB.find(e=>e.k.some(kw=>ql.includes(kw)));
-    return {reply: hit ? hit.r+'\n\n[ Offline mode — AI reconnects automatically ]'
+    return {_src:'offline', reply: hit ? hit.r+'\n\n[ Offline mode — AI reconnects automatically ]'
       : "I'm offline right now. For anything about Ali, email malitajofficial@gmail.com or open contact.msg on the desktop."};
   })
   .then(data=>{
     think.remove();
     const reply=data.reply||'Reach Ali at malitajofficial@gmail.com';
+    const src=data._src||'offline';
+    // Update header status dot
+    const onlineDot=document.querySelector('.ai-online-dot');
+    const onlineLbl=document.querySelector('.ai-online');
+    if(onlineDot&&onlineLbl){
+      if(src==='groq'){
+        onlineDot.style.background='var(--gr)';onlineDot.style.animation='gp 2s ease-in-out infinite';
+        onlineLbl.style.color='var(--gr)';onlineLbl.childNodes[1].textContent='ONLINE';
+      } else {
+        onlineDot.style.background='var(--amb)';onlineDot.style.animation='none';
+        onlineLbl.style.color='var(--amb)';onlineLbl.childNodes[1].textContent='OFFLINE';
+      }
+    }
     const bm=document.createElement('div');
     bm.className='ai-msg bot';
     const bubble=document.createElement('div');
@@ -3370,6 +3388,11 @@ window.aiSubmit=function(){
         setTimeout(type,13);
       }else{
         bubble.textContent=reply;
+        // Secret source dot — bottom-right of bubble
+        const dot=document.createElement('span');
+        dot.className='ai-src-dot '+(src==='groq'?'groq':'offline');
+        dot.title=src==='groq'?'Groq AI':'Offline KB';
+        bubble.appendChild(dot);
         aiTyping=false;
         if(window._aiWaveSetBusy)window._aiWaveSetBusy(false);
       }
