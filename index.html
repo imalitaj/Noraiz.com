@@ -1247,7 +1247,7 @@ a.ci-v:hover{color:var(--amb)}
 
 /* ── 390px: Small phones ────────────────────── */
 @media(max-width:390px){
-  #icons .ai-ico{display:none!important}
+  #icons .ai-ico{display:flex!important}
   #icons{right:0!important;height:72px!important;gap:5px!important;padding:4px 8px!important}
   .ico{width:50px!important;padding:5px 2px 4px}
   .ico-img{font-size:1.55rem}
@@ -3799,14 +3799,15 @@ document.addEventListener('keydown',e=>{
   (function(){
     const floatEl=document.getElementById('ai-float');
     if(!floatEl||!orb) return;
-    const DRAG_THRESHOLD=8;
+    // Higher threshold for touch — fat fingers drift ~12px on a tap
+    const isTouch=navigator.maxTouchPoints>0;
+    const DRAG_THRESHOLD=isTouch?15:8;
     let dragging=false,hasDragged=false;
     let startCX=0,startCY=0,startL=0,startT=0;
 
     function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 
     function onDragStart(cx,cy){
-      // Snapshot visual position — do NOT change style here (avoids drift on click)
       const r=floatEl.getBoundingClientRect();
       startCX=cx;startCY=cy;
       startL=r.left;startT=r.top;
@@ -3817,13 +3818,11 @@ document.addEventListener('keydown',e=>{
       const dx=cx-startCX,dy=cy-startCY;
       if(!dragging&&Math.sqrt(dx*dx+dy*dy)>DRAG_THRESHOLD){
         dragging=true;hasDragged=true;
-        // Switch from right/bottom to left/top ONLY when drag actually starts
         floatEl.style.right='auto';floatEl.style.bottom='auto';
         floatEl.style.transform='';
         floatEl.style.left=startL+'px';floatEl.style.top=startT+'px';
         orb.classList.add('dragging');
         floatEl.classList.add('dragging-float');
-        // WOW: lift + glow burst
         animate(orb,{scale:[1,1.18],duration:180,ease:'outBack',onComplete:()=>{orb.style.transform='';}});
         animate(orb,{
           boxShadow:['0 0 24px rgba(0,229,255,.25)','0 0 55px rgba(0,229,255,.75),inset 0 0 28px rgba(0,229,255,.25)'],
@@ -3841,7 +3840,12 @@ document.addEventListener('keydown',e=>{
       floatEl.classList.remove('dragging-float');
       if(dragging){
         dragging=false;
-        // WOW: spring settle + glow fade
+        // Snap back to bottom/right anchoring so bubble expansion goes UPWARD
+        // (prevents bubble from pushing orb down after a drag)
+        const r=floatEl.getBoundingClientRect();
+        floatEl.style.left='auto';floatEl.style.top='auto';
+        floatEl.style.right=(innerWidth-r.right)+'px';
+        floatEl.style.bottom=(innerHeight-r.bottom)+'px';
         animate(orb,{scale:[1.18,1],duration:500,ease:spring({stiffness:120,damping:14}),onComplete:()=>{orb.style.transform='';}});
         animate(orb,{
           boxShadow:['0 0 55px rgba(0,229,255,.75)','0 0 24px rgba(0,229,255,.25)'],
