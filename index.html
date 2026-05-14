@@ -2153,6 +2153,19 @@ window.openWin=function(id){
 
 window.closeWin=function(id){
   const el=openWins[id];if(!el)return;
+  // Restore float orb when AI window closes
+  if(id==='ai'){
+    const floatEl=document.getElementById('ai-float');
+    if(floatEl){
+      floatEl.style.display='flex';
+      animate(floatEl,{opacity:[0,1],duration:300,ease:'outQuad'});
+      // Show badge if there's conversation history
+      const badge=document.getElementById('ai-float-badge');
+      if(badge&&sessionStorage.getItem('talixa_history')){
+        badge.textContent='↩';badge.style.display='flex';
+      }
+    }
+  }
   const isMob=window.innerWidth<=768;
   animate(el,{scale:.86,opacity:0,translateY:12,duration:isMob?100:260,ease:'inQuad',onComplete:()=>{
     el.remove();delete openWins[id];removeTbApp(id);
@@ -2394,6 +2407,12 @@ function termContent(){
 }
 
 function aiContent(){
+  const savedMsgs=sessionStorage.getItem('talixa_history')||'';
+  const hasHistory=savedMsgs.trim().length>0;
+  const greeting=hasHistory?savedMsgs:`<div class="ai-msg bot">
+        <div class="ai-avatar bot"><img src="ali-bot.webp" alt="Ali" loading="lazy"/></div>
+        <div class="ai-bubble">Hey! I'm TALIXA — ask me anything about Ali's work, skills, or how to get in touch.</div>
+      </div>`;
   return`<div class="wc-ai">
     <div class="ai-neural-header">
       <div class="ai-nh-top">
@@ -2403,19 +2422,14 @@ function aiContent(){
         </div>
         <div class="ai-id">
           <div class="ai-id-name">TALIXA</div>
-          <div class="ai-id-sub">Trained on Ali Taj's full profile · Ask anything</div>
+          <div class="ai-id-sub">${hasHistory?'Welcome back · conversation restored':'Ask me anything about Ali'}</div>
         </div>
         <div class="ai-online"><div class="ai-online-dot"></div>ONLINE</div>
       </div>
       <canvas id="ai-wave-canvas" height="44" style="width:100%"></canvas>
       <div class="ai-wave-label"><span>NEURAL ACTIVITY</span><span id="ai-token-count">0 tokens</span><span id="ai-daily-budget" style="margin-left:auto;font-size:.63rem;letter-spacing:.06em;font-family:inherit"></span></div>
     </div>
-    <div class="ai-msgs" id="ai-msgs">
-      <div class="ai-msg bot">
-        <div class="ai-avatar bot"><img src="ali-bot.webp" alt="Ali" loading="lazy"/></div>
-        <div class="ai-bubble">Hello. I'm TALIXA — trained on Ali Taj's professional profile. Ask me anything about his skills, projects, experience, or how to hire him.</div>
-      </div>
-    </div>
+    <div class="ai-msgs" id="ai-msgs">${greeting}</div>
     <div class="ai-sugs" id="ai-sugs">
       <div class="ai-sug" onclick="aiAsk('Who is Ali Taj?')">Who is Ali Taj?</div>
       <div class="ai-sug" onclick="aiAsk('What can he build?')">What can he build?</div>
@@ -3235,6 +3249,15 @@ function postInit(id,el){
     const inp=el.querySelector('#ai-in');
     if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')aiSubmit()});
     setTimeout(()=>{inp&&inp.focus();updateBudgetDisplay();},100);
+
+    // Hide float orb — window is now open
+    const floatEl=document.getElementById('ai-float');
+    if(floatEl) floatEl.style.opacity='0';
+    setTimeout(()=>{if(floatEl)floatEl.style.display='none';},200);
+
+    // Scroll to bottom if restoring history
+    const msgs=el.querySelector('#ai-msgs');
+    if(msgs) setTimeout(()=>{msgs.scrollTop=msgs.scrollHeight;},80);
   }
 }
 
@@ -3410,6 +3433,7 @@ window.aiSubmit=function(){
   um.className='ai-msg user';
   um.innerHTML=`<div class="ai-avatar usr">YOU</div><div class="ai-bubble">${escH(q)}</div>`;
   msgs.appendChild(um);msgs.scrollTop=msgs.scrollHeight;
+  try{sessionStorage.setItem('talixa_history',msgs.innerHTML);}catch(e){}
 
   aiTyping=true;
   if(window._aiWaveSetBusy)window._aiWaveSetBusy(true);
@@ -3478,6 +3502,8 @@ window.aiSubmit=function(){
         bubble.appendChild(dot);
         aiTyping=false;
         if(window._aiWaveSetBusy)window._aiWaveSetBusy(false);
+        // Persist conversation to sessionStorage
+        try{sessionStorage.setItem('talixa_history',msgs.innerHTML);}catch(e){}
       }
     }
     type();
