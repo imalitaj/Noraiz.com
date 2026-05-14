@@ -13,10 +13,10 @@
 <link rel="canonical" href="https://noraiz.com"/>
 
 <!-- Preload critical above-fold image -->
-<link rel="preload" href="ali-bot.jpg.png" as="image"/>
+<link rel="preload" href="ali-bot.webp" as="image" type="image/webp"/>
 
 <!-- Favicon — static fallback, overridden by animated canvas favicon in JS -->
-<link rel="icon" id="favicon" type="image/png" href="ali-bot.jpg.png"/>
+<link rel="icon" id="favicon" type="image/webp" href="ali-bot.webp"/>
 <meta name="theme-color" content="#04040f"/>
 
 <!-- Open Graph -->
@@ -24,7 +24,7 @@
 <meta property="og:url" content="https://noraiz.com"/>
 <meta property="og:title" content="Ali Taj — Senior .NET Engineer &amp; AI Architect"/>
 <meta property="og:description" content="Senior full-stack engineer building SaaS, ERP, and AI systems. .NET 9, PostgreSQL, AWS, Azure. 60+ projects shipped. Open to hire."/>
-<meta property="og:image" content="https://noraiz.com/ali-bot.jpg.png"/>
+<meta property="og:image" content="https://noraiz.com/ali-bot.webp"/>
 <meta property="og:image:width" content="400"/>
 <meta property="og:image:height" content="400"/>
 <meta property="og:site_name" content="Ali Taj · Neural OS"/>
@@ -34,7 +34,7 @@
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Ali Taj — Senior .NET Engineer &amp; AI Architect"/>
 <meta name="twitter:description" content="Senior full-stack engineer building SaaS, ERP, and AI systems. .NET 9, PostgreSQL, AWS, Azure. 60+ projects shipped."/>
-<meta name="twitter:image" content="https://noraiz.com/ali-bot.jpg.png"/>
+<meta name="twitter:image" content="https://noraiz.com/ali-bot.webp"/>
 
 <!-- Structured Data — Person -->
 <script type="application/ld+json">
@@ -46,7 +46,7 @@
   "email": "malitajofficial@gmail.com",
   "jobTitle": "Lead Full Stack Engineer & AI Architect",
   "description": "Senior full-stack engineer building SaaS, ERP, and AI-integrated systems. .NET 9, PostgreSQL, AWS, Azure, Semantic Kernel.",
-  "image": "https://noraiz.com/ali-bot.jpg.png",
+  "image": "https://noraiz.com/ali-bot.webp",
   "sameAs": ["https://github.com/imalitaj"],
   "worksFor": {
     "@type": "Organization",
@@ -1390,7 +1390,7 @@ a.ci-v:hover{color:var(--amb)}
     <div class="ico" onclick="openWin('skills')"><span class="ico-img">⚙️</span><span class="ico-lbl">skills.json</span></div>
     <div class="ico" onclick="openWin('contact')"><span class="ico-img">✉️</span><span class="ico-lbl">contact.msg</span></div>
     <div class="ico" onclick="openWin('term')"><span class="ico-img">🖥️</span><span class="ico-lbl">terminal.exe</span></div>
-    <div class="ico ai-ico" onclick="openWin('ai')"><span class="ico-img ico-face-wrap"><img src="ali-bot.jpg.png" class="ico-face-img" alt="Ali" loading="lazy"/></span><span class="ico-lbl">TAJ AI</span></div>
+    <div class="ico ai-ico" onclick="openWin('ai')"><span class="ico-img ico-face-wrap"><img src="ali-bot.webp" class="ico-face-img" alt="Ali" loading="lazy"/></span><span class="ico-lbl">TAJ AI</span></div>
   </div>
 
   <div id="dock-fade"></div>
@@ -1411,7 +1411,7 @@ a.ci-v:hover{color:var(--amb)}
   <div class="sm-inner">
     <!-- Header -->
     <div class="sm-head">
-      <div class="sm-av"><img src="ali-bot.jpg.png" alt="Ali Taj" loading="lazy"/></div>
+      <div class="sm-av"><img src="ali-bot.webp" alt="Ali Taj" loading="lazy"/></div>
       <div class="sm-id">
         <div class="sm-nm">Ali Taj</div>
         <div class="sm-rl">LEAD DEV · AI ENGINEER</div>
@@ -1545,7 +1545,7 @@ a.ci-v:hover{color:var(--amb)}
   <div id="ai-float-orb">
     <div id="ai-float-ring"></div>
     <div id="ai-float-ring2"></div>
-    <img src="ali-bot.jpg.png" id="ai-float-face" alt="Ali" width="58" height="58" fetchpriority="high"/>
+    <img src="ali-bot.webp" id="ai-float-face" alt="Ali" width="58" height="58" fetchpriority="high"/>
     <div id="ai-float-badge">1</div>
     <div class="orb-tip">
       <div class="ico-tip-scan"></div>
@@ -2399,7 +2399,7 @@ function aiContent(){
       <div class="ai-nh-top">
         <div class="ai-orb">
           <div class="ai-orb-ring"></div>
-          <img src="ali-bot.jpg.png" class="ai-orb-face" alt="Ali" loading="lazy"/>
+          <img src="ali-bot.webp" class="ai-orb-face" alt="Ali" loading="lazy"/>
         </div>
         <div class="ai-id">
           <div class="ai-id-name">TALIXA</div>
@@ -2412,7 +2412,7 @@ function aiContent(){
     </div>
     <div class="ai-msgs" id="ai-msgs">
       <div class="ai-msg bot">
-        <div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali" loading="lazy"/></div>
+        <div class="ai-avatar bot"><img src="ali-bot.webp" alt="Ali" loading="lazy"/></div>
         <div class="ai-bubble">Hello. I'm TALIXA — trained on Ali Taj's professional profile. Ask me anything about his skills, projects, experience, or how to hire him.</div>
       </div>
     </div>
@@ -3401,7 +3401,7 @@ window.aiSubmit=function(){
   // Daily limit gate
   if(_tlUsage()>=TALIXA_LIMIT){
     const bm=document.createElement('div');bm.className='ai-msg bot';
-    bm.innerHTML=`<div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali"/></div><div class="ai-bubble">You've used all ${TALIXA_LIMIT} queries — TALIXA's 24-hour analysis budget is exhausted. Resets in <b>${_tlFmtReset(_tlResetMs())}</b>. Ready to talk directly? Reach Ali at <b>malitajofficial@gmail.com</b> — he responds within 24 hours.</div>`;
+    bm.innerHTML=`<div class="ai-avatar bot"><img src="ali-bot.webp" alt="Ali"/></div><div class="ai-bubble">You've used all ${TALIXA_LIMIT} queries — TALIXA's 24-hour analysis budget is exhausted. Resets in <b>${_tlFmtReset(_tlResetMs())}</b>. Ready to talk directly? Reach Ali at <b>malitajofficial@gmail.com</b> — he responds within 24 hours.</div>`;
     msgs.appendChild(bm);msgs.scrollTop=msgs.scrollHeight;
     return;
   }
@@ -3417,7 +3417,7 @@ window.aiSubmit=function(){
   // Thinking indicator
   const think=document.createElement('div');
   think.className='ai-msg bot';
-  think.innerHTML=`<div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali"/></div><div class="ai-bubble"><div class="ai-thinking"><span></span><span></span><span></span></div></div>`;
+  think.innerHTML=`<div class="ai-avatar bot"><img src="ali-bot.webp" alt="Ali"/></div><div class="ai-bubble"><div class="ai-thinking"><span></span><span></span><span></span></div></div>`;
   msgs.appendChild(think);msgs.scrollTop=msgs.scrollHeight;
 
   // Call Groq via Vercel serverless proxy (key stays server-side)
@@ -3455,7 +3455,7 @@ window.aiSubmit=function(){
     bm.className='ai-msg bot';
     const bubble=document.createElement('div');
     bubble.className='ai-bubble';
-    bm.innerHTML='<div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali"/></div>';
+    bm.innerHTML='<div class="ai-avatar bot"><img src="ali-bot.webp" alt="Ali"/></div>';
     bm.appendChild(bubble);
     msgs.appendChild(bm);
     let i=0;
@@ -3938,7 +3938,7 @@ document.querySelectorAll('.ico,.ctx-item,.tb-app,.soc,.pj-card,.ai-sug,.ai-send
   if(!link)return;
 
   const img=new Image();
-  img.src='ali-bot.jpg.png';
+  img.src='ali-bot.webp';
 
   let t=0,raf;
   function draw(){
