@@ -1,15 +1,54 @@
 // Vercel Serverless Function — TALIXA Groq Proxy
 // API key in Vercel env vars (GROQ_KEY), never exposed to browser.
+
+// Basic in-memory rate limit — resets on cold start, per Vercel instance.
+// For a portfolio this is sufficient; upgrade to Vercel KV for persistent limiting.
+const _rl = new Map();
+const RL_WINDOW_MS = 60_000; // 1 minute
+const RL_MAX       = 20;     // 20 req/min per IP
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  if (_rl.size > 5_000) _rl.clear(); // circuit breaker — prevent unbounded growth
+  const entry = _rl.get(ip) || { count: 0, start: now };
+  if (now - entry.start > RL_WINDOW_MS) { _rl.set(ip, { count: 1, start: now }); return false; }
+  if (entry.count >= RL_MAX) return true;
+  entry.count++;
+  _rl.set(ip, entry);
+  return false;
+}
+
+// Strip HTML/script tags — prevent prompt injection via markup
+function sanitize(str) {
+  return str.replace(/<[^>]*>/g, '').replace(/[^\u0020-\u007E\u00A0-\uFFFF]/g, '').trim();
+}
+
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Security headers (OWASP A05)
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Access-Control-Allow-Origin', 'https://noraiz.com');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
 
-  const { message } = req.body ?? {};
-  if (!message || message.length > 1000) return res.status(400).json({ error: 'Invalid message' });
+  // Validate Content-Type (A03)
+  const ct = req.headers['content-type'] || '';
+  if (!ct.includes('application/json')) return res.status(415).json({ error: 'Unsupported media type' });
+
+  // Rate limit (A04)
+  const ip = req.headers['x-real-ip'] || req.headers['x-forwarded-for']?.split(',').pop()?.trim() || 'unknown';
+  if (isRateLimited(ip)) return res.status(429).json({ reply: 'Too many requests. Reach Ali at malitajofficial@gmail.com' });
+
+  // Input validation + sanitization (A03)
+  const raw = req.body?.message;
+  if (!raw || typeof raw !== 'string') return res.status(400).json({ error: 'Invalid message' });
+  const message = sanitize(raw);
+  if (!message || message.length < 2 || message.length > 800)
+    return res.status(400).json({ error: 'Invalid message length' });
 
   const SYSTEM = `You are TALIXA, the AI assistant embedded in Ali Taj's portfolio at noraiz.com.
 Ali Taj is a senior full-stack engineer and AI architect based in Pakistan (UTC+5).
