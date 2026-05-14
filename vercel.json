@@ -1,9 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/groq.js":    {},
-    "api/contact.js": {}
-  },
   "routes": [
     { "src": "/api/groq",    "dest": "/api/groq.js" },
     { "src": "/api/contact", "dest": "/api/contact.js" },
