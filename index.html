@@ -545,8 +545,9 @@ a.ci-v:hover{color:var(--amb)}
 .ai-msg{display:flex;gap:11px;align-items:flex-start;animation:msg-in .3s ease forwards}
 @keyframes msg-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .ai-msg.user{flex-direction:row-reverse}
-.ai-avatar{width:30px;height:30px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.6rem;letter-spacing:.04em}
+.ai-avatar{width:30px;height:30px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.6rem;letter-spacing:.04em;overflow:hidden}
 .ai-avatar.bot{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.28);color:var(--cy)}
+.ai-avatar.bot img{width:100%;height:100%;object-fit:cover;border-radius:6px;display:block}
 .ai-avatar.usr{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.28);color:var(--amb)}
 .ai-bubble{max-width:80%;padding:13px 17px;border-radius:12px;font-family:var(--fb);font-size:1rem;line-height:1.7;word-break:break-word}
 .ai-msg.bot .ai-bubble{background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.12);color:rgba(232,240,255,.9)}
@@ -2354,7 +2355,7 @@ function aiContent(){
     </div>
     <div class="ai-msgs" id="ai-msgs">
       <div class="ai-msg bot">
-        <div class="ai-avatar bot">AI</div>
+        <div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali"/></div>
         <div class="ai-bubble">Hello. I'm TALIXA — trained on Ali Taj's professional profile. Ask me anything about his skills, projects, experience, or how to hire him.</div>
       </div>
     </div>
@@ -3275,28 +3276,53 @@ const AI_KB=[
 let aiTyping=false,tokenCount=0;
 
 /* ── TALIXA DAILY BUDGET ─────────────────────────────────── */
-const TALIXA_LIMIT=15;
-function _tlUsage(){
+const TALIXA_LIMIT=30;
+const TALIXA_WINDOW_MS=24*60*60*1000; // 24h rolling window
+function _tlData(){
   try{
     const u=JSON.parse(localStorage.getItem('talixa_d')||'null');
-    const today=new Date().toISOString().slice(0,10);
-    if(u&&u.d===today)return u.n||0;
+    const now=Date.now();
+    if(u&&u.ts&&(now-u.ts)<TALIXA_WINDOW_MS)return u;
   }catch(e){}
-  return 0;
+  return null;
+}
+function _tlUsage(){
+  const u=_tlData();return u?u.n||0:0;
 }
 function _tlInc(){
-  const today=new Date().toISOString().slice(0,10);
-  const n=_tlUsage()+1;
-  try{localStorage.setItem('talixa_d',JSON.stringify({d:today,n}));}catch(e){}
+  const now=Date.now();
+  const u=_tlData();
+  const n=(u?u.n||0:0)+1;
+  const ts=u&&u.ts?u.ts:now; // keep original window start
+  try{localStorage.setItem('talixa_d',JSON.stringify({ts,n}));}catch(e){}
   return n;
+}
+function _tlResetMs(){
+  const u=_tlData();
+  if(!u||!u.ts)return 0;
+  return Math.max(0,(u.ts+TALIXA_WINDOW_MS)-Date.now());
+}
+function _tlFmtReset(ms){
+  if(ms<=0)return'now';
+  const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);
+  return h>0?`${h}h ${m}m`:`${m}m`;
 }
 function updateBudgetDisplay(){
   const el=document.getElementById('ai-daily-budget');if(!el)return;
-  const used=_tlUsage(),rem=TALIXA_LIMIT-used;
-  const col=rem<=2?'#ff4757':rem<=5?'#ffa502':'#00ffb2';
-  el.innerHTML=rem>0
-    ?`<span style="color:${col}">${rem}/${TALIXA_LIMIT} queries left today</span>`
-    :`<span style="color:#ff4757">Limit reached · Contact Ali</span>`;
+  const used=_tlUsage(),rem=Math.max(0,TALIXA_LIMIT-used);
+  const pct=Math.round((rem/TALIXA_LIMIT)*100);
+  const col=pct<=10?'#ff4757':pct<=33?'#ffa502':pct<=60?'#ffdd57':'#00ffb2';
+  const resetIn=_tlFmtReset(_tlResetMs());
+  if(rem>0){
+    el.innerHTML=`<span style="display:inline-flex;align-items:center;gap:5px">
+      <span style="display:inline-block;width:48px;height:5px;background:#1a2340;border-radius:3px;overflow:hidden">
+        <span style="display:block;height:100%;width:${pct}%;background:${col};border-radius:3px;transition:width .4s"></span>
+      </span>
+      <span style="color:${col};font-size:.62rem">${pct}% · resets ${resetIn}</span>
+    </span>`;
+  }else{
+    el.innerHTML=`<span style="color:#ff4757;font-size:.62rem">Limit reached · resets ${resetIn}</span>`;
+  }
 }
 
 window.aiAsk=function(q){
@@ -3318,7 +3344,7 @@ window.aiSubmit=function(){
   // Daily limit gate
   if(_tlUsage()>=TALIXA_LIMIT){
     const bm=document.createElement('div');bm.className='ai-msg bot';
-    bm.innerHTML='<div class="ai-avatar bot">AI</div><div class="ai-bubble">You\'ve used all 15 daily queries — TALIXA\'s analysis budget for today is exhausted. Ready to talk directly? Reach Ali at <b>malitajofficial@gmail.com</b> — he responds within 24 hours.</div>';
+    bm.innerHTML=`<div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali"/></div><div class="ai-bubble">You've used all ${TALIXA_LIMIT} queries — TALIXA's 24-hour analysis budget is exhausted. Resets in <b>${_tlFmtReset(_tlResetMs())}</b>. Ready to talk directly? Reach Ali at <b>malitajofficial@gmail.com</b> — he responds within 24 hours.</div>`;
     msgs.appendChild(bm);msgs.scrollTop=msgs.scrollHeight;
     return;
   }
@@ -3334,7 +3360,7 @@ window.aiSubmit=function(){
   // Thinking indicator
   const think=document.createElement('div');
   think.className='ai-msg bot';
-  think.innerHTML=`<div class="ai-avatar bot">AI</div><div class="ai-bubble"><div class="ai-thinking"><span></span><span></span><span></span></div></div>`;
+  think.innerHTML=`<div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali"/></div><div class="ai-bubble"><div class="ai-thinking"><span></span><span></span><span></span></div></div>`;
   msgs.appendChild(think);msgs.scrollTop=msgs.scrollHeight;
 
   // Call Groq via Vercel serverless proxy (key stays server-side)
@@ -3372,7 +3398,7 @@ window.aiSubmit=function(){
     bm.className='ai-msg bot';
     const bubble=document.createElement('div');
     bubble.className='ai-bubble';
-    bm.innerHTML='<div class="ai-avatar bot">AI</div>';
+    bm.innerHTML='<div class="ai-avatar bot"><img src="ali-bot.jpg.png" alt="Ali"/></div>';
     bm.appendChild(bubble);
     msgs.appendChild(bm);
     let i=0;
