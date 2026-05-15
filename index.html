@@ -3701,7 +3701,7 @@ window.sendContact=async function(){
       .add(desk,{opacity:[0,1],duration:500},'-=300')
       .add(tb,{opacity:[0,1],duration:400},'-=300')
       .add([...huds],{opacity:[0,1],duration:400,delay:stagger(80),ease:'outQuad'},'-=200')
-      .add(iconChildren,{opacity:[0,1],scale:[0.4,1],duration:600,delay:stagger(65),ease:spIcons,onComplete:()=>{setTimeout(()=>openWin('readme'),500);}},'-=200')
+      .add(iconChildren,{opacity:[0,1],scale:[0.4,1],duration:600,delay:stagger(65),ease:spIcons,onComplete:()=>{}},'-=200')
       .add('#ai-float',{opacity:[0,1],duration:400,ease:'outQuad',onComplete:()=>{
           // Animate orb itself (not container) so no transform left on #ai-float
           animate('#ai-float-orb',{scale:[0.3,1],duration:700,ease:spring({stiffness:90,damping:11}),onComplete:()=>{document.getElementById('ai-float-orb').style.transform='';}});
